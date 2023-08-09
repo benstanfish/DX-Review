@@ -8,7 +8,7 @@ The only visible method visible as a "macro" is the MAIN() method, which is mere
 
 1. Export full Dr Checks reports from ProjNet as XML - it's recommended to export the full report. Make sure you only use XML exports from ProjNet.
 2. Save one or more of these XML reports in a folder - the names of the files doesn't really matter, just don't overwrite other XML reports.
-3. **Run the <span style="color: tomato;">MAIN() macro</span>** and select the folder containing one or more XML reports.
+3. **Run the <span style="color: rgb(255,0,0)">MAIN() macro</span>** and select the folder containing one or more XML reports.
 
 The code will generate a new Workbook alongside the XML files, with a timestamp. It will include the summary of each XML report as a different tab in the Workbook.
 
