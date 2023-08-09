@@ -1,4 +1,5 @@
 Attribute VB_Name = "dxreviewv2"
+Const module_version = "1.0.5"
 Const target_cell_address = "D1"
 
 Const xxlarge_column = 50
@@ -124,14 +125,31 @@ End Function
 '
 '#########################################################################
 
-Sub MAIN()
+Sub DXReview_Select_File()
     Dim st, et As Double
     Dim success_message As String
     Dim folder_path As String
     st = Timer
 
     'This next line is the pulsating heart of the application.
-    folder_path = perform_on_each_file
+    folder_path = perform_on_single_file
+
+    'The following code merely provides the user with some feedback
+    et = Timer
+    success_message = "Successfully created Dr Checks summary file." & _
+                     vbCrLf & vbCrLf & "Task completed in " & Int(et - st) & " sec"
+    nagivate_to_in_explorer folder_path
+    MsgBox Prompt:=success_message, Buttons:=vbInformation, Title:="Success!"
+End Sub
+
+Sub DXReview_Select_Folder()
+    Dim st, et As Double
+    Dim success_message As String
+    Dim folder_path As String
+    st = Timer
+
+    'This next line is the pulsating heart of the application.
+    folder_path = perform_on_multiple_files
 
     'The following code merely provides the user with some feedback
     et = Timer
@@ -177,8 +195,48 @@ Function verify_projnet_xml(xml_file_path As String) As Boolean
     verify_projnet_xml = is_valid
 End Function
 
-Private Function perform_on_each_file() as String
-    Dim st as Long
+
+Private Function perform_on_single_file() as String
+    Dim st As Long
+    Dim fd As FileDialog
+    Dim fso As New FileSystemObject
+    Dim my_folder As String
+    Dim my_file As String
+    Dim summary_workbook As Workbook
+    Dim current_sheet As Worksheet
+    
+    Application.ScreenUpdating = False
+    Set fd = Application.FileDialog(msoFileDialogFilePicker)
+    With fd
+        .Filters.Clear
+        .Filters.Add "XML", "*.xml?"
+        .Title = "Choose an XML file"
+        .AllowMultiSelect = False
+        If .Show <> -1 Then Exit Function
+        my_file = .SelectedItems(1)
+    End With
+   
+    my_folder = fso.GetParentFolderName(my_file)
+    Set summary_workbook = create_workbook(my_folder)
+    
+    On Error GoTo dump
+    If fso.GetExtensionName(my_file) = "xml" Then
+        If verify_projnet_xml(my_file) = True Then
+            summary_workbook.Sheets.Add After:=summary_workbook.Sheets(summary_workbook.Sheets.count)
+            Set current_sheet = summary_workbook.Sheets(summary_workbook.Sheets.count)
+            import_to_sheet my_file, current_sheet
+        End If
+    End If
+    write_developer_info summary_workbook
+    summary_workbook.Close SaveChanges:=True
+    Application.ScreenUpdating = True
+    On Error GoTo 0
+    perform_on_single_file = my_folder
+dump:
+End Function
+
+Private Function perform_on_multiple_files() as String
+    Dim st As Long
     Dim fd As FileDialog
     Dim fso As New FileSystemObject
     Dim my_folder As String
@@ -211,7 +269,7 @@ Private Function perform_on_each_file() as String
     summary_workbook.Close SaveChanges:=True
     Application.ScreenUpdating = True
     On Error GoTo 0
-    perform_on_each_file = my_folder
+    perform_on_multiple_files = my_folder
 End Function
 
 
@@ -297,7 +355,7 @@ Sub write_developer_info(target_workbook as Workbook)
     header_array = Array("Program", "Module Name", "Version", _
                         "Author", "Email", "Github", "License", "References", , "Run Date")
 
-    values_array = Array("DX Review", "dxreviewv2", "1.0.4", _
+    values_array = Array("DX Review", "dxreviewv2", module_version, _
                         "Ben Fisher", "benstanfish@gmail.com", "https://github.com/benstanfish/DX-Review", _
                         "GNU General Public License v3.0", _
                         "Microsoft XML v6 (msxml.dll), Microsoft Scripting Runtime (scrrun.dll)", , CDate(Now))
