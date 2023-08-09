@@ -1,8 +1,4 @@
 Attribute VB_Name = "dxreviewv2"
-
-Const version as String = "1.0.1"
-Const author as String = "Ben Fisher"
-
 Const target_cell_address = "D1"
 
 Const xxlarge_column = 50
@@ -26,7 +22,7 @@ Const color_whitesmoke As Long = 16119285
 '
 '#########################################################################
 
-Private Sub set_max_RowHeight(a_range as Range, Optional max_row_height as Double = 75)
+Private Sub set_max_RowHeight(ByVal a_range as Range, Optional max_row_height as Double = 75)
     For Each a_row In a_range.Rows
         If a_row.RowHeight > max_row_height Then a_row.RowHeight = max_row_height
     Next
@@ -51,7 +47,7 @@ Function get_max_element_count(element_xpath as String, root_element As IXMLDOME
             max_count = element_selection(i).ChildNodes.Length
         End If
     Next
-    element_selection = max_count
+    get_max_element_count = max_count
 End Function
 
 Function count_days_open(comment_node As IXMLDOMElement) As Long
@@ -77,7 +73,7 @@ Function count_days_open(comment_node As IXMLDOMElement) As Long
     End If
 End Function
 
-Sub rename_sheet(root_element As IXMLDOMElement, a_sheet As Worksheet)
+Sub rename_sheet(root_element As IXMLDOMElement, target_sheet As Worksheet)
     'Renames a Worksheet (tab) with the value of the <ReviewName> node of an XML file.
     'It limits the name to the maximum permitted character count (31) and removes 
     'illegal characters from the name.
@@ -92,7 +88,7 @@ Sub rename_sheet(root_element As IXMLDOMElement, a_sheet As Worksheet)
         new_sheet_name = Replace(new_sheet_name, illegal_characters(i), "")
     Next
     On Error GoTo dump
-    a_sheet.Name = new_sheet_name
+    target_sheet.Name = new_sheet_name
 dump:
 End Sub
 
@@ -122,7 +118,6 @@ Public Function select_contrast_font(background_color As Long) as Long
 End Function
 
 
-
 '#########################################################################
 '
 '                             MAIN METHOD
@@ -130,13 +125,24 @@ End Function
 '#########################################################################
 
 Sub MAIN()
+    Dim st, et As Double
+    Dim success_message As String
+    Dim folder_path As String
+    st = Timer
 
-    perform_on_each_file
+    'This next line is the pulsating heart of the application.
+    folder_path = perform_on_each_file
 
+    'The following code merely provides the user with some feedback
+    et = Timer
+    success_message = "Successfully created Dr Checks summary file." & _
+                     vbCrLf & vbCrLf & "Task completed in " & Int(et - st) & " secs"
+    nagivate_to_in_explorer folder_path
+    MsgBox Prompt:=success_message, Buttons:=vbInformation, Title:="Success!"
 End Sub
 
-Function create_workbook(save_path as String, 
-                         Optional workbook_name As String = "DrChecks Summary Report"
+Function create_workbook(save_path as String, _
+                         Optional workbook_name As String = "DrChecks Summary Report", _
                          Optional include_timestamp as Boolean = True) As Workbook
     'Creates a new workbook with the provided name and appends with a timestamp as noted.
     Dim combined_workbook As Workbook
@@ -171,8 +177,8 @@ Function verify_projnet_xml(xml_file_path As String) As Boolean
     verify_projnet_xml = is_valid
 End Function
 
-Private Sub perform_on_each_file()
-
+Private Function perform_on_each_file() as String
+    Dim st as Long
     Dim fd As FileDialog
     Dim fso As New FileSystemObject
     Dim my_folder As String
@@ -182,62 +188,45 @@ Private Sub perform_on_each_file()
     
     Application.ScreenUpdating = False
     Set fd = Application.FileDialog(msoFileDialogFolderPicker)
-    
     With fd
         .Title = "Select Folder"
         .AllowMultiSelect = False
-        If .Show <> -1 Then Exit Sub
+        If .Show <> -1 Then Exit Function
         my_folder = .SelectedItems(1)
     End With
     
     Set summary_workbook = create_workbook(my_folder)
-    i = 1
+
     On Error Resume Next
     For Each a_file In fso.GetFolder(my_folder).Files
         If fso.GetExtensionName(a_file) = "xml" Then
             If verify_projnet_xml(a_file.Path) = True Then
-                'Debug.Print summary_workbook.Sheets.count
-                If i = 1 Then
-                    Set current_sheet = summary_workbook.Sheets(1)
-                Else
-                    summary_workbook.Sheets.Add After:=summary_workbook.Sheets(summary_workbook.Sheets.count)
-                    Set current_sheet = summary_workbook.Sheets(summary_workbook.Sheets.count)
-                End If
-                
+                summary_workbook.Sheets.Add After:=summary_workbook.Sheets(summary_workbook.Sheets.count)
+                Set current_sheet = summary_workbook.Sheets(summary_workbook.Sheets.count)
                 import_to_sheet a_file.Path, current_sheet
-                i = i + 1
             End If
         End If
-        
     Next
-    
+    write_developer_info summary_workbook
     summary_workbook.Close SaveChanges:=True
-    
     Application.ScreenUpdating = True
     On Error GoTo 0
+    perform_on_each_file = my_folder
+End Function
 
-End Sub
 
-Sub import_to_sheet(ByVal xml_file_path As String, ByVal a_sheet As Worksheet)
-    
-    Dim st, et As Double
-    st = Timer
-    
-    'Application.ScreenUpdating = False
-    
+Sub import_to_sheet(ByVal xml_file_path As String, ByVal target_sheet As Worksheet)
     'Start fresh
-    With a_sheet.Cells
+    With target_sheet.Cells
         'To make sure you don't keep stacking grouped regions
-        If a_sheet.UsedRange.Rows.OutlineLevel >= 1 Then
+        If target_sheet.UsedRange.Rows.OutlineLevel >= 1 Then
             .ClearOutline
         End If
         .Delete
     End With
     ActiveWindow.DisplayGridlines = False
-    a_sheet.UsedRange.Columns.ColumnWidth = small_column
-    
-    'xml_file_path = "C:\Users\benst\Documents\_0 Workspace\97 XML Projects\small.xml"
-    
+    target_sheet.UsedRange.Columns.ColumnWidth = small_column
+
     Dim xml_doc As DOMDocument60
     Dim root_element As IXMLDOMElement
     Dim header_info As IXMLDOMNode
@@ -249,9 +238,9 @@ Sub import_to_sheet(ByVal xml_file_path As String, ByVal a_sheet As Worksheet)
     xml_doc.Load xml_file_path
     Set root_element = xml_doc.DocumentElement
     
-    rename_sheet root_element, a_sheet
+    rename_sheet root_element, target_sheet
     
-    Set target_cell = a_sheet.Range(target_cell_address)
+    Set target_cell = target_sheet.Range(target_cell_address)
     Set user_start_cell = create_project_info_region(root_element, target_cell)
     
     header_row = user_start_cell.Row
@@ -268,14 +257,14 @@ Sub import_to_sheet(ByVal xml_file_path As String, ByVal a_sheet As Worksheet)
     apply_user_region_formats data_range
     
     Set response_data_region = Range(response_header_start_cell.Offset(1, 0), _
-                                    Cells(a_sheet.UsedRange.Rows.count, _
-                                            a_sheet.UsedRange.Columns.count))
+                                    Cells(target_sheet.UsedRange.Rows.count, _
+                                            target_sheet.UsedRange.Columns.count))
                                             
     apply_response_formatting response_data_region
     
     'Additional Formatting after the header is created
     set_max_RowHeight data_range
-    With a_sheet.Rows(header_row)
+    With target_sheet.Rows(header_row)
         .AutoFilter
         .Font.Bold = True
         .VerticalAlignment = xlVAlignBottom
@@ -285,16 +274,50 @@ Sub import_to_sheet(ByVal xml_file_path As String, ByVal a_sheet As Worksheet)
         End With
     End With
 
-    a_sheet.UsedRange.HorizontalAlignment = xlHAlignLeft
+    target_sheet.UsedRange.HorizontalAlignment = xlHAlignLeft
     data_range.WrapText = True
     data_range.VerticalAlignment = xlVAlignTop
-    a_sheet.Outline.ShowLevels ColumnLevels:=1
-    
-    'Application.ScreenUpdating = True
-    
-    et = Timer
-    Debug.Print (et - st) * 1000 & " ms"
-    
+    target_sheet.Outline.ShowLevels ColumnLevels:=1
+End Sub
+
+Sub nagivate_to_in_explorer(ByVal folder_path as String, Optional is_in_focus as Boolean = True)
+    If folder_path <> "" Then
+        If is_in_focus Then
+            Shell "C:\WINDOWS\explorer.exe """ & folder_path & "", vbNormalFocus
+        Else
+            Shell "C:\WINDOWS\explorer.exe """ & folder_path & "", vbNormalNoFocus
+        End if
+    End If
+End Sub
+
+Sub write_developer_info(target_workbook as Workbook)
+    Dim header_array, values_array As Variant
+    Dim start_cell As Range
+    Dim i As Integer
+    header_array = Array("Program", "Module Name", "Version", _
+                        "Author", "Email", "Github", "License", "References", , "Run Date")
+
+    values_array = Array("DX Review", "dxreviewv2", "1.0.4", _
+                        "Ben Fisher", "benstanfish@gmail.com", "https://github.com/benstanfish/DX-Review", _
+                        "GNU General Public License v3.0", _
+                        "Microsoft XML v6 (msxml.dll), Microsoft Scripting Runtime (scrrun.dll)", , CDate(Now))
+                        
+    With target_workbook.Sheets(1)
+        .Cells.Delete Shift:=xlUp
+        Set start_cell = .Range("A1")
+        For i = LBound(header_array, 1) To UBound(header_array, 1)
+            start_cell.Offset(i, 0) = header_array(i)
+            start_cell.Offset(i, 1) = values_array(i)
+        Next
+        With start_cell.Columns(1).EntireColumn
+            .Font.Bold = True
+            .AutoFit
+        End With
+        start_cell.Offset(0, 1).EntireColumn.ColumnWidth = 15
+        .Cells.HorizontalAlignment = xlHAlignLeft
+        .Name = "DevInfo"
+        .Visible = xlSheetVeryHidden
+    End With
 End Sub
 
 '#########################################################################
@@ -303,15 +326,13 @@ End Sub
 '
 '#########################################################################
 
-Function create_project_info_region(root_element As IXMLDOMElement, 
-                              ByVal target_cell As Range,
-                              ByVal a_worksheet as Worksheet = ActiveSheet) as Range
-    'Gets the project info from the <DrChecks> element, puts that data into the the 
+Function create_project_info_region(root_element As IXMLDOMElement, ByVal target_cell As Range) as Range
+    'Gets the project info from the <DrChecks> element, puts that data into the the
     'specified target_cell. This function return a Range that indicates the start location
     'of the next region (User Header Region).
-    Dim project_info_node as IXMLDOMElement
-    Dim project_info_count as Long
-    Dim project_info as Variant
+    Dim project_info_node As IXMLDOMElement
+    Dim project_info_count As Long
+    Dim project_info As Variant
     If TypeName(target_cell) = "String" Then
         Set target_cell = a_worksheet.Range(target_cell)
     End If
@@ -322,13 +343,13 @@ Function create_project_info_region(root_element As IXMLDOMElement,
         project_info(i, 0) = project_info_node.ChildNodes.Item(i).nodeName
         project_info(i, 1) = CStr(project_info_node.ChildNodes.Item(i).Text)
     Next
-    Range(target_cell, target_cell.Offset(header_info_count - 1, 1)) = project_info
+    Range(target_cell, target_cell.Offset(project_info_count - 1, 1)) = project_info
     'Formatting of the first column, which has the names of the project info properties:
-    With Range(target_cell, target_cell.Offset(header_info_count - 1, 0))
+    With Range(target_cell, target_cell.Offset(project_info_count - 1, 0))
         .Font.Bold = True
     End With
     'Return the cell for the start of the User region header
-    Set create_project_info_region = a_worksheet.Cells(target_cell.Offset(header_info_count + 1, 0).Row, 1)
+    Set create_project_info_region = Cells(target_cell.Offset(project_info_count + 1, 0).Row, 1)
 End Function
 
 Function create_user_region_header(ByVal start_cell As Range) As Range
@@ -344,9 +365,9 @@ Function create_user_region_header(ByVal start_cell As Range) As Range
     For i = 0 To UBound(column_widths)
         start_cell.Offset(0, i).ColumnWidth = column_widths(i)
     Next
-    Range(start_cell, start_cell.Offset(0, UBound(arr))).Columns.Group
+    Range(start_cell, start_cell.Offset(0, UBound(header_fields))).Columns.Group
     'Return the cell address to start the comment region header
-    Set create_user_region_header = start_cell.Offset(0, UBound(arr) + 1)
+    Set create_user_region_header = start_cell.Offset(0, UBound(header_fields) + 1)
 End Function
 
 Function create_comment_region_header(ByVal start_cell As Range) As Range
@@ -364,7 +385,7 @@ Function create_comment_region_header(ByVal start_cell As Range) As Range
         start_cell.Offset(0, i).ColumnWidth = column_widths(i)
     Next
     'Return the cell address to start the Response region header (first position is Evaulation)
-    Set create_comment_region_header = start_cell.Offset(0, UBound(arr) + 1)
+    Set create_comment_region_header = start_cell.Offset(0, UBound(header_fields) + 1)
 End Function
 
 Function create_response_region_header(ByVal start_cell As Range, root_element As IXMLDOMElement) as Range
@@ -426,7 +447,7 @@ Function create_response_region_header(ByVal start_cell As Range, root_element A
         Range(start_cell.Offset(0, i * template_count + 1), start_cell.Offset(0, i * template_count + (template_count - 1))).Columns.Group
     Next
     
-    create_response_region_header = start_cell.Offset(0, backchecks_start_index)
+    Set create_response_region_header = start_cell.Offset(0, backchecks_start_index)
 End Function
 
 '#########################################################################
