@@ -1,5 +1,7 @@
-# DX Review v2
-Simple VBA Code to (batch) Parse and Summarize Dr Checks XML Files with colorized formating.
+# DX Review v1.0.5
+Simple VBA Code to (batch) Parse and Summarize Dr Checks XML Files with colorized formatting.
+
+You can read the PDF of the docs folder or click the <a href="">DX Review Documentation.pdf</a> link.
 
 ## Download
 There are currently three implementations:
@@ -25,6 +27,6 @@ The tabs in the summary Workbook use the <ReviewName> element in the XML file. S
 
 The code requires that you have the *Microsoft Scripting Runtime (scrrun.dll)* and *Microsoft XML Library v6.0 (MSXML.dll)* --- these are fairly common installs on basically all Windows machines.
 
-## Documentation
+You can download these from the **<a href="https://github.com/benstanfish/DX-Review/tree/main/dependencies">dependencies folder</a>**.
 
-I am currently working on more robust documentation.
+
