@@ -1,4 +1,5 @@
-# DX Review v1.0.5
+# DX Review 
+## Current Release: v1.0.5
 Simple VBA Code to (batch) Parse and Summarize Dr Checks XML Files with colorized formatting.
 
 You can read the PDF of the docs folder or click the <a href="https://github.com/benstanfish/DX-Review/blob/main/docs/DX%20Review%20Documentation.pdf">DX Review Documentation.pdf</a> link.
