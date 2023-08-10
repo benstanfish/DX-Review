@@ -22,11 +22,11 @@ Note that you do have to set a reference to the dependencies (discussed in the t
 If you go the import .bas route, you don't need to import the .bas code into each Excel file you work on - in fact, this code operates on files outside Workbook that hosts the module. 
 
 ## Quick Start Guide
-The only methods visible to the user as a "macro" are the DXReview_Load_File and DXReview_Load_Folder methods, the latter is recommended in most cases.
+The only methods visible to the user as a "macro" are the **DXReview_Select_File** and **DXReview_Select_Folder** methods, the latter is recommended in most cases.
 
 1. Export full Dr Checks reports from ProjNet as XML - it's recommended to export the full report. Make sure you only use XML exports from ProjNet.
 2. Save one or more of these XML reports in a folder - the names of the files doesn't really matter, just don't overwrite other XML reports.
-3. **Run the DXReview_Load_Folder macro** and select the folder containing one or more XML reports.
+3. Run the **DXReview_Select_Folder** macro and select the folder containing one or more XML reports.
 
 The code will generate a new Workbook alongside the XML files, with a timestamp. It will include the summary of each XML report as a different tab in the Workbook.
 
