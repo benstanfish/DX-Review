@@ -2,6 +2,11 @@
 Simple VBA Code to (batch) Parse and Summarize Dr Checks XML Files with colorized formatting.
 
 You can read the PDF of the docs folder or click the <a href="https://github.com/benstanfish/DX-Review/blob/main/docs/DX%20Review%20Documentation.pdf">DX Review Documentation.pdf</a> link.
+![Initial_View](https://github.com/benstanfish/DX-Review/assets/34006582/b2af4bdb-7973-46e3-8079-f0786fe52868)
+**Initial View of Example Output**
+
+![Fully_Expanded_View](https://github.com/benstanfish/DX-Review/assets/34006582/887656cb-2c15-4d5c-956a-6d54bd9392e4)
+**Expanded View of Example Output**
 
 ## Download
 There are currently three implementations:
