@@ -38,6 +38,4 @@ The tabs in the summary Workbook use the <ReviewName> element in the XML file. S
 
 The code requires that you have the *Microsoft Scripting Runtime (scrrun.dll)* and *Microsoft XML Library v6.0 (MSXML.dll)* --- these are fairly common installs on basically all Windows machines.
 
-You can download these from the **<a href="https://github.com/benstanfish/DX-Review/tree/main/dependencies">dependencies folder</a>**.
-
-
+You can download these from the **<a href="https://github.com/benstanfish/DX-Review/tree/main/dependencies">dependencies folder</a>**. You'll need to register them in Windows, check the <a href="https://github.com/benstanfish/DX-Review/blob/main/docs/DX%20Review%20Documentation.pdf">Documentation</a> *Troubleshooting section* for step-by-step instructions.
