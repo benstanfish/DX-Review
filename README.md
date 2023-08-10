@@ -8,6 +8,8 @@ You can read the PDF of the docs folder or click the <a href="https://github.com
 ![Fully_Expanded_View](https://github.com/benstanfish/DX-Review/assets/34006582/887656cb-2c15-4d5c-956a-6d54bd9392e4)
 **Expanded View of Example Output**
 
+*Note:* to expand all the output, click the [2] or [+] at the top of the spreadsheet area to only expand a single region. Click the [1] or [+] to collapse all or selected regions, respectively.
+
 ## Download
 There are currently three implementations:
 
