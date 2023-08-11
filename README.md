@@ -12,11 +12,11 @@ You can read the PDF of the docs folder or click the <a href="https://github.com
 *Note:* to expand all the output, click the [2] or [+] at the top of the spreadsheet area to only expand a single region. Click the [1] or [+] to collapse all or selected regions, respectively.
 
 ## Download
-There are currently three implementations:
+There are currently ~~three~~ two implementations:
 
 1. Download the <a href="https://github.com/benstanfish/DX-Review/blob/main/DX%20Review%20Plugin%20v2.xlsm">DX Review Plugin v2.xlsm</a> and save to your favorite location. This file comes equipped with a button in the first sheet that you can use to start the program. **Note:** The very first time you open this file, however, you will need to right-click the file and uncheck the *block* option at the bottom of the properties tab.
 2. You can download the <a href="https://github.com/benstanfish/DX-Review/blob/main/dxreviewv2.bas">.bas file</a> and import as a module into an existing Excel Workbook. **Note:** This isn't really necessary to do more than once, as the code in the .bas file creates a new Workbook each time it processes XML files.
-3. Download the <a href="https://github.com/benstanfish/DX-Review/blob/main/DX%20Review%20Plugin%20v2.xlam">DX Review Plugin v2.xlam</a> and put it in your %APPDATA%/Roaming/Microsoft/Addins folder --- this can also be done (*more easily*) by simply "saving as" a copy of the .xlsm file above. The advantage of this .xlam file is that it you can enable it as an addin so that it is available in every Workbook - you can even add it to the Ribbon with a customized button of your liking.
+3. ~~Download the <a href="" onclick="javascript:void(0)">DX Review Plugin v2.xlam</a> and put it in your %APPDATA%/Roaming/Microsoft/Addins folder --- this can also be done (*more easily*) by simply "saving as" a copy of the .xlsm file above. The advantage of this .xlam file is that it you can enable it as an addin so that it is available in every Workbook - you can even add it to the Ribbon with a customized button of your liking.~~ To use the "addin" option, please download the *macro-enabled Workbook* and save-as an *macro-enabled Excel Addin (.xlam")*
 
 You can download the <a href="https://github.com/benstanfish/DrChecksParser/blob/main/bsfdrchecksv2.bas">.bas file</a> and import into a macro-enabled Workbook, or simple download the *<a href="https://github.com/benstanfish/DrChecksParser/blob/main/BSF%20DrChecks%20Plugin%20v2.xlsm">BSF DrChecks Plugin v2.xlsm</a>* Workbook.
 
