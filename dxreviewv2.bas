@@ -36,6 +36,24 @@ Function count_all_comments(root_element As IXMLDOMElement) as Long
     count_all_comments = root_element.selectNodes("Comments/comment").Length
 End Function
 
+Function has_responses(root_element As IXMLDOMElement) As Boolean
+    'TODO: pass root_element as an argument
+    
+    Dim comment_node As IXMLDOMElement
+    Dim max_evaluations As Long
+    Dim max_backchecks As Long
+    
+    Set comments_selection = root_element.selectNodes("Comments/comment")
+    total_comments = count_all_comments(root_element)
+    max_evaluations = get_max_element_count("Comments/comment/evaluations", root_element)
+    max_backchecks = get_max_element_count("Comments/comment/backchecks", root_element)
+    
+    If (max_evaluations <> 0) And (max_backchecks <> 0) Then has_responses = True
+    
+    has_responses = True
+    
+End Function
+
 Function get_max_element_count(element_xpath as String, root_element As IXMLDOMElement)
     'Used to calculate the maximum number of <evaulation*> or <backcheck*> elements for
     'any given <comment> in the XML file. The element_xpath is typically either
