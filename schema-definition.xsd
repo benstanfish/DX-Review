@@ -1,0 +1,133 @@
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="ProjNet">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="DrChecks">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:int" name="ProjectID"/>
+              <xs:element type="xs:int" name="ProjectControlNbr"/>
+              <xs:element type="xs:string" name="ProjectName"/>
+              <xs:element type="xs:int" name="ReviewID"/>
+              <xs:element type="xs:string" name="ReviewName"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Comments">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="comment" maxOccurs="unbounded" minOccurs="0">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element type="xs:int" name="id"/>
+                    <xs:element type="xs:string" name="spec"/>
+                    <xs:element type="xs:string" name="sheet"/>
+                    <xs:element type="xs:string" name="detail"/>
+                    <xs:element type="xs:string" name="critical"/>
+                    <xs:element type="xs:string" name="commentText"/>
+                    <xs:element type="xs:string" name="attachment"/>
+                    <xs:element type="xs:string" name="DocRef"/>
+                    <xs:element type="xs:string" name="createdBy"/>
+                    <xs:element type="xs:string" name="createdOn"/>
+                    <xs:element type="xs:string" name="status"/>
+                    <xs:element type="xs:string" name="Discipline"/>
+                    <xs:element type="xs:string" name="DocType"/>
+                    <xs:element type="xs:string" name="CoordinatingDiscipline" minOccurs="0"/>
+                    <xs:element name="evaluations">
+                      <xs:complexType mixed="true">
+                        <xs:sequence>
+                          <xs:element name="evaluation1" minOccurs="0">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element type="xs:int" name="id"/>
+                                <xs:element type="xs:int" name="comment"/>
+                                <xs:element type="xs:string" name="status"/>
+                                <xs:element type="xs:string" name="impactScope"/>
+                                <xs:element type="xs:string" name="impactCost"/>
+                                <xs:element type="xs:string" name="impactTime"/>
+                                <xs:element type="xs:string" name="evaluationText"/>
+                                <xs:element type="xs:string" name="attachment"/>
+                                <xs:element type="xs:string" name="createdBy"/>
+                                <xs:element type="xs:string" name="createdOn"/>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="evaluation2" minOccurs="0">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element type="xs:int" name="id"/>
+                                <xs:element type="xs:int" name="comment"/>
+                                <xs:element type="xs:string" name="status"/>
+                                <xs:element type="xs:string" name="impactScope"/>
+                                <xs:element type="xs:string" name="impactCost"/>
+                                <xs:element type="xs:string" name="impactTime"/>
+                                <xs:element type="xs:string" name="evaluationText"/>
+                                <xs:element type="xs:string" name="attachment"/>
+                                <xs:element type="xs:string" name="createdBy"/>
+                                <xs:element type="xs:string" name="createdOn"/>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="evaluation3" minOccurs="0">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element type="xs:int" name="id"/>
+                                <xs:element type="xs:int" name="comment"/>
+                                <xs:element type="xs:string" name="status"/>
+                                <xs:element type="xs:string" name="impactScope"/>
+                                <xs:element type="xs:string" name="impactCost"/>
+                                <xs:element type="xs:string" name="impactTime"/>
+                                <xs:element type="xs:string" name="evaluationText"/>
+                                <xs:element type="xs:string" name="attachment"/>
+                                <xs:element type="xs:string" name="createdBy"/>
+                                <xs:element type="xs:string" name="createdOn"/>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="backchecks">
+                      <xs:complexType mixed="true">
+                        <xs:sequence>
+                          <xs:element name="backcheck1" minOccurs="0">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element type="xs:int" name="id"/>
+                                <xs:element type="xs:int" name="comment"/>
+                                <xs:element type="xs:int" name="evaluation"/>
+                                <xs:element type="xs:string" name="status"/>
+                                <xs:element type="xs:string" name="backcheckText"/>
+                                <xs:element type="xs:string" name="attachment"/>
+                                <xs:element type="xs:string" name="createdBy"/>
+                                <xs:element type="xs:string" name="createdOn"/>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="backcheck2" minOccurs="0">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element type="xs:int" name="id"/>
+                                <xs:element type="xs:int" name="comment"/>
+                                <xs:element type="xs:int" name="evaluation"/>
+                                <xs:element type="xs:string" name="status"/>
+                                <xs:element type="xs:string" name="backcheckText"/>
+                                <xs:element type="xs:string" name="attachment"/>
+                                <xs:element type="xs:string" name="createdBy"/>
+                                <xs:element type="xs:string" name="createdOn"/>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
