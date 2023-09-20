@@ -72,7 +72,7 @@ Function CreateWorkbook(save_path As String, Optional workbook_name As String = 
     With combined_workbook
         .Title = workbook_name
         If include_timestamp Then
-            file_name = save_path & "\" & workbook_name & " " & Format(Now(), "YYYY-MM-DD hh:mm:ss") & ".xlsx"
+            file_name = save_path & "\" & workbook_name & " " & Format(Now(), "YYYY-MM-DD hh-mm-ss") & ".xlsx"
         Else
             file_name = save_path & "\" & workbook_name & ".xlsx"
         End If
