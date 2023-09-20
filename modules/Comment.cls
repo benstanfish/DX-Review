@@ -23,13 +23,16 @@ Dim pDocType As String
 Dim pCoordinatingDiscipline As String
 Dim pSiblingSequence As Long
 
-Dim pEvaluations As New Evaluations
-Dim pBackchecks As New Backchecks
+Dim pEvaluations As Evaluations
+Dim pBackchecks As Backchecks
 
-Dim pStatuses As New Dictionary
-
+Dim pStatuses As Dictionary
 
 Private Sub Class_Initialize()
+    Set pEvaluations = New Evaluations
+    Set pBackchecks = New Backchecks
+    Set pStatuses = New Dictionary
+
     pStatuses.Add "concur", 0
     pStatuses.Add "for information only", 1
     pStatuses.Add "non-concur", 2
@@ -56,8 +59,8 @@ Property Get Spec() As String
     Spec = pSpec
 End Property
 
-Property Get Sheet() As String
-    Sheet = pSheet
+Property Get SheetRef() As String
+    SheetRef = pSheet
 End Property
 
 Property Get Detail() As String
