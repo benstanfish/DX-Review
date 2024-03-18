@@ -2,7 +2,7 @@ Attribute VB_Name = "dxreview"
 Public Const mod_name As String = "DxReview"
 Public Const module_author As String = "Ben Fisher"
 Public Const module_email As String = "benstanfish@hotmail.com"
-Public Const module_version As String = "4.6"
+Public Const module_version As String = "4.6.2"
 Public Const module_date As Date = #3/18/2024#
 Public Const module_dependencies = "Microsoft XML, v6.0 (msxml6.dll) - XML parsing functions" & vbCrLf & _
                                     "Microsoft Scripting Runtime (scrrun.dll) - Dictionaries" & vbCrLf & _
@@ -30,7 +30,7 @@ Private Sub UpdateVersionNumber()
 
     With ThisWorkbook.Sheets("Macros")
         .Unprotect Password:=""
-        With .Range("I3")
+        With .Range("K3")
             .Value = mod_name & " v" & module_version
             .HorizontalAlignment = xlHAlignRight
             .Font.Size = 9
@@ -245,7 +245,7 @@ Sub ImportFile()
             Set root = BuildFromXML(file_path)
             RenameSheet current_sheet, root
             WriteDevInfo wb
-
+            GenerateNewStatSheets wb
         End If
     End If
 
@@ -282,7 +282,7 @@ Sub ImportMultipleFiles()
             End If
         Next
         WriteDevInfo wb
-        
+        GenerateNewStatSheets wb
     End If
 
     Application.ScreenUpdating = True
