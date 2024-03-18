@@ -3,7 +3,9 @@
 Simple VBA Code to (batch) Parse and Summarize Dr Checks XML Files with colorized formatting.
 
 ## Latest
-Refactored to include Regular Expression capabilities from DX Assist. Added summary statistics pages and other minor updates in the User Notes area.
++ Refactored to include Regular Expression capabilities from DX Assist. 
++ Added summary statistics pages.
++ Other minor updates in the User Notes area.
 
 
 ## Overview 
