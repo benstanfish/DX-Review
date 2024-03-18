@@ -24,7 +24,7 @@ Public Sub GenerateNewStatSheets(wb As Workbook)
         Next
     
     End If
-    
+    wb.Sheets(2).Activate
     Application.ScreenUpdating = True
 End Sub
 
@@ -217,7 +217,7 @@ Public Sub PrintStatisticsSheet(ByVal srcSht As Worksheet, ByVal sht As Workshee
         Dim OpenByAssignTitleRng As Range
         Set OpenByAssignTitleRng = sht.Cells(sht.Range(Split(OpenByAuthRegion.Address, ":")(1)).Row + 3, 1)
         With OpenByAssignTitleRng
-            .Value = "Open Comments by Assignee"
+            .Value = "Open & Unresponded Comments by Assignee"
             .Font.Size = 11
             .Font.Bold = True
         End With
@@ -233,7 +233,7 @@ Public Sub PrintStatisticsSheet(ByVal srcSht As Worksheet, ByVal sht As Workshee
             .VerticalAlignment = xlVAlignBottom
         End With
         With OpenByAssignHeader.Offset(1, 0)
-            .Formula2 = "=UNIQUE(FILTER(" & aTable.Name & "[ID],(" & aTable.Name & "[Assignee]=A$" & OpenByAssignHeader.Row & ")*(" & aTable.Name & "[Status]=""Open""),""""))"
+            .Formula2 = "=UNIQUE(FILTER(" & aTable.Name & "[ID],(" & aTable.Name & "[Assignee]=A$" & OpenByAssignHeader.Row & ")*(" & aTable.Name & "[Status]=""Open"")*(" & aTable.Name & "[Highest Resp.]=""""),""""))"
         End With
         Dim OpenByAssignRegion As Range
         With OpenByAssignHeader.CurrentRegion
