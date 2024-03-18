@@ -75,7 +75,7 @@ Sub CreateFromNode(a_node As IXMLDOMElement, Optional sibling_order As Long = 0)
     pImpactCost = a_node.SelectSingleNode("impactCost").Text
     pImpactTime = a_node.SelectSingleNode("impactTime").Text
     pText = Replace(a_node.SelectSingleNode("evaluationText").Text, "<br />", vbCrLf)
-    If Len(a_node.SelectSingleNode("attachment").Text) > 0 Then pAttach = ChrW(9650)
+    If Len(a_node.SelectSingleNode("attachment").Text) > 0 Then pAttach = ChrW(dxreview.DAIMARU)
     pCreatedBy = StrConv(a_node.SelectSingleNode("createdBy").Text, vbProperCase)
     pCreatedOn = CDate(a_node.SelectSingleNode("createdOn").Text)
 End Sub

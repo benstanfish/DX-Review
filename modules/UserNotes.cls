@@ -13,7 +13,7 @@ Dim pBodyRange As Range
 Dim pHeaderFields As Variant
 
 Private Sub Class_Initialize()
-    pHeaderFields = Array("No.", "Notes", "Action Items", "Assignee")
+    pHeaderFields = Array("No.", "Notes", "Action Items", "Assignee", "Reponse", "Proposed Status", "State")
 End Sub
 
 Sub PasteData(target_cell As Range, comment_count As Long)
@@ -38,14 +38,14 @@ End Sub
 Sub ApplyFormats()
     Application.ScreenUpdating = False
     With pHeaderRange
-        .Interior.Color = gold
-        .Font.Color = black
+        .Interior.Color = webcolors.LEMONCHIFFON
+        .Font.Color = BLACK
         
         .Borders(xlEdgeBottom).LineStyle = xlNone
         With .Borders(xlEdgeBottom)
             .LineStyle = xlContinuous
             .Weight = xlMedium
-            .Color = darkgoldenrod
+            .Color = DARKGOLDENROD
         End With
         
         .HorizontalAlignment = xlHAlignLeft
@@ -53,14 +53,14 @@ Sub ApplyFormats()
     End With
     
     With pBodyRange
-        .Interior.Color = lightgoldenrodyellow
-        .Font.Color = saddlebrown
+        .Interior.Color = LIGHTGOLDENRODYELLOW
+        .Font.Color = SADDLEBROWN
         
         .Borders(xlEdgeBottom).LineStyle = xlNone
         With .Borders(xlInsideHorizontal)
             .LineStyle = xlContinuous
             .Weight = xlThin
-            .Color = khaki
+            .Color = KHAKI
         End With
         
         .HorizontalAlignment = xlHAlignLeft
@@ -68,12 +68,17 @@ Sub ApplyFormats()
     End With
 
     pHeaderRange(1).ColumnWidth = 5
-    For i = 2 To pHeaderRange.Count
+    For i = 2 To 5
         With pHeaderRange(i)
             .ColumnWidth = 30
             .WrapText = True
         End With
     Next
+    With pHeaderRange(6)
+        .ColumnWidth = 12
+        .EntireColumn.WrapText = True
+    End With
+    pHeaderRange(7).ColumnWidth = 8
     
     Range(pHeaderRange(2), pHeaderRange(pHeaderRange.Count)).Group
     ActiveSheet.Outline.ShowLevels ColumnLevels:=1

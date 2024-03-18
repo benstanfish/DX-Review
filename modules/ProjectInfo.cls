@@ -64,8 +64,8 @@ Private Sub PrintToDebug()
     Debug.Print "Project Name: "; pProjectName
     Debug.Print "Review ID: "; pReviewID
     Debug.Print "Review Name: "; pReviewName
-    Debug.Print "XML Save: "; pDownloadDate
-    Debug.Print "Run Date: "; pImportDate
+    Debug.Print "XML Date: "; pDownloadDate
+    Debug.Print "Create Date: "; pImportDate
 End Sub
 
 Function PasteData(target_cell As Range, Optional spacer_rows As Long = 2) As Range
@@ -77,10 +77,10 @@ Function PasteData(target_cell As Range, Optional spacer_rows As Long = 2) As Ra
     Dim arr2 As Variant
     
     arr = Array("Project ID", "Project Control Number", "Project Name", _
-                "Review ID", "Review Name", "XML Save", "Run Date")
+                "Review ID", "Review Name", "XML Save", "Run Date", "Notes")
     
     arr2 = Array(pProjectID, pProjectControlNumber, pProjectName, pReviewID, _
-                pReviewName, pDownloadDate, pImportDate)
+                pReviewName, pDownloadDate, pImportDate, "")
 
     Set pInfoHeader = target_cell.Resize(UBound(arr) + 1)
     Set pInfoBody = target_cell.Offset(0, 1).Resize(UBound(arr) + 1)
@@ -91,6 +91,11 @@ Function PasteData(target_cell As Range, Optional spacer_rows As Long = 2) As Ra
     'Minor formatting of the data in this region
     pInfoHeader.Font.Bold = True
     pInfoHeader.CurrentRegion.HorizontalAlignment = xlHAlignLeft
+    
+    With pInfoBody(3)
+        .Font.Size = 12
+        .Font.Bold = True
+    End With
     
     For i = 6 To 7
         pInfoBody(i).NumberFormat = "mm/dd/yy"

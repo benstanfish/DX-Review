@@ -9,6 +9,11 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 ' Collection of comments for a given Comments node
 
+' NOTES:
+' Autofilter on header is currently turned off in ApplyFormats()
+' Added "Doc", "Sheet", "Spec", "Section", between Date and Comment in Class_Initialize()
+' Added the four fields above to CommentsToArray()
+
 Const xxs_width As Long = 5
 Const xs_width As Long = 8
 Const sm_width As Long = 10
@@ -108,8 +113,8 @@ Private Sub Class_Initialize()
     Set pComments = New Collection
     
     ' This may need to be changed, based on the needs of the project. These headers are the defaults.
-    pCommentHeaderFields = Array("ID", "Status", "Discipline", "Author", "Date", "Comment", "Att.", "Days Open", "Highest Resp.")
-    pCommentWidths = Array(sm_width, sm_width, md_width, md_width, sm_width, xl_width, xxs_width, xs_width, sm_width)
+    pCommentHeaderFields = Array("ID", "Status", "Discipline", "Author", "Date", "Source", "Reference", "Sheet", "Spec", "Section", "Comment", "Class", "Att.", "Days Open", "Highest Resp.")
+    pCommentWidths = Array(sm_width, sm_width, md_width, md_width, sm_width, md_width, md_width, sm_width, md_width, md_width, xl_width, sm_width, xxs_width, xs_width, sm_width)
     
     ' This is a template array - each individual response should prefix these headers.
     pResponseHeaderFields = Array("Status", "Author", "Date", "Text", "Att.")
@@ -228,21 +233,30 @@ Function CommentRange(start_cell As Range) As Range
 End Function
 
 Function CommentsToArray() As Variant
-    Dim cmt As Comment
+    Dim aComment As Comment
     Dim arr As Variant
     Dim i As Long
     ReDim arr(Me.Count - 1, Me.HeaderCount - 1)
     i = 0
-    For Each cmt In pComments
-        arr(i, 0) = cmt.ID
-        arr(i, 1) = cmt.status
-        arr(i, 2) = cmt.Discipline
-        arr(i, 3) = cmt.CreatedBy
-        arr(i, 4) = Format(cmt.CreatedOn, "mm/dd/yy")
-        arr(i, 5) = cmt.Text
-        arr(i, 6) = cmt.Attachment
-        arr(i, 7) = cmt.DaysOpen
-        arr(i, 8) = cmt.HighestStatus
+    For Each aComment In pComments
+        arr(i, 0) = aComment.ID
+        arr(i, 1) = aComment.status
+        arr(i, 2) = aComment.Discipline
+        arr(i, 3) = aComment.CreatedBy
+        arr(i, 4) = Format(aComment.CreatedOn, "mm/dd/yy")
+        
+        '"Source", "Ref", "Sheet", "Spec", "Section",
+        arr(i, 5) = aComment.DocType & " " & aComment.DocRef
+        arr(i, 6) = Find_StandardReferences(aComment.DocType, aComment.DocRef, aComment.Text)
+        arr(i, 7) = Find_SheetNumbers(aComment.SheetRef, aComment.Detail, aComment.DocRef, aComment.Text)
+        arr(i, 8) = Find_SpecSections(aComment.DocRef, aComment.Spec, aComment.Text)
+        arr(i, 9) = Find_ReportSectionNumbers(aComment.DocType, aComment.DocRef, aComment.Text)
+        
+        arr(i, 10) = aComment.Text
+        
+        arr(i, 12) = aComment.Attachment
+        arr(i, 13) = aComment.DaysOpen
+        arr(i, 14) = aComment.HighestStatus
         i = i + 1
     Next
     CommentsToArray = arr
@@ -376,7 +390,7 @@ Sub ApplyXLines(ByVal a_cell As Range)
     For i = xlDiagonalDown To xlDiagonalUp
         With a_cell.Borders(i)
             .LineStyle = xlContinuous
-            .Color = gainsboro
+            .Color = GAINSBORO
             .Weight = xlThin
         End With
     Next
@@ -389,25 +403,25 @@ Public Sub ApplyConditionalFormats(ByVal data_range As Range)
     first_status_cell = Replace(data_range(2).Address, "$", "")
     
     data_range.FormatConditions.Add Type:=xlExpression, Formula1:="=LOWER($" & first_status_cell & ")=""closed"""
-    data_range.FormatConditions(1).Font.Color = silver
-    data_range.FormatConditions(1).Interior.Color = whitesmoke
+    data_range.FormatConditions(1).Font.Color = SILVER
+    data_range.FormatConditions(1).Interior.Color = WHITESMOKE
     
     data_range.FormatConditions.Add Type:=xlExpression, Formula1:="=LOWER(" & first_cell & ")=""check and resolve"""
     With data_range.FormatConditions(2)
         With .Borders(xlEdgeLeft)
-            .Color = tomato
+            .Color = TOMATO
         End With
-        .Font.Color = tomato
-        .Interior.Color = mistyrose
+        .Font.Color = TOMATO
+        .Interior.Color = MISTYROSE
     End With
     
     data_range.FormatConditions.Add Type:=xlExpression, Formula1:="=LOWER(" & first_cell & ")=""non-concur"""
     With data_range.FormatConditions(3)
         With .Borders(xlEdgeLeft)
-            .Color = darkgoldenrod
+            .Color = DARKGOLDENROD
         End With
-        .Font.Color = darkgoldenrod
-        .Interior.Color = lemonchiffon
+        .Font.Color = DARKGOLDENROD
+        .Interior.Color = LEMONCHIFFON
     End With
     
     data_range.FormatConditions.Add Type:=xlExpression, Formula1:="=LOWER(" & first_cell & ")=""for information only"""
@@ -464,24 +478,26 @@ Function ApplyFormats()
     Next
 
     With pCommentsBody
-        ' The sixth column in the comments range has the Comment Text
-        .Columns(6).WrapText = True
+        ' The Comment Text column
+        With .Columns(11)
+            .WrapText = True
+            .Font.Size = 8
+        End With
         For Each a_row In .Rows
             If a_row.RowHeight > max_row_height Then a_row.RowHeight = max_row_height
         Next
     End With
     
-    With pCommentsBody.Columns(9)
+    With pCommentsBody.Columns(15)
         .WrapText = True
         For Each a_cell In .Rows
             With a_cell.Borders(xlEdgeLeft)
                 .LineStyle = xlContinuous
-                .Color = gainsboro
+                .Color = GAINSBORO
                 .Weight = xlThin
             End With
             If a_cell = Empty Then ApplyXLines a_cell
         Next
-        
     End With
     
     With pFullBody
@@ -491,7 +507,7 @@ Function ApplyFormats()
         With .Borders(xlInsideHorizontal)
             .LineStyle = xlContinuous
             .Weight = xlThin
-            .Color = gainsboro
+            .Color = GAINSBORO
         End With
     End With
 
@@ -503,6 +519,7 @@ Function ApplyFormats()
             ' Find the column that has the comments --- in this case it is 4 (or 3 in Base-0)
             If i Mod ((UBound(pResponseHeaderFields) + 1)) = 3 Then
                 pAllResponseHeader(i + 1).EntireColumn.WrapText = True
+                pAllResponseBody(i + 1).EntireColumn.Font.Size = 8
             End If
 
             ' Find the first column and then group the next through last columns
@@ -513,10 +530,11 @@ Function ApplyFormats()
                     If a_cell = Empty Then ApplyXLines a_cell
                     With a_cell.Borders(xlEdgeLeft)
                         .LineStyle = xlContinuous
-                        .Color = gainsboro
+                        .Color = GAINSBORO
                         .Weight = xlThin
                     End With
                 Next
+                
                 ' There are five total fields, so we want to group the last four of each response
                 ActiveSheet.Range(pAllResponseBody(i + 1).Offset(0, 1), pAllResponseBody(i + 1).Offset(0, 4)).Group
             End If
@@ -527,7 +545,19 @@ Function ApplyFormats()
         End With
     End If
     
-    pFullHeader.AutoFilter
+    Dim refRng As Range
+    Set refRng = Union(pCommentsHeader(6), pCommentsHeader(7), pCommentsHeader(8), pCommentsHeader(9), pCommentsHeader(10))
+    With refRng.EntireColumn
+        .Group
+        .Font.Size = 8
+        .WrapText = True
+    End With
+    
+    dxreview.GroupedColumnTriangles
+    
+    ActiveSheet.Range(ALLCOMMENTSTARGETCELL).EntireRow.Font.Size = 9
+    
+    'pFullHeader.AutoFilter
     
     ' Collapse all "outline" groups
     ActiveSheet.Outline.ShowLevels ColumnLevels:=1

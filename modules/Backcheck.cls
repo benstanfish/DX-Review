@@ -63,7 +63,7 @@ Sub CreateFromNode(a_node As IXMLDOMElement, Optional sibling_order As Long = 0)
     pRelatedEvaluationID = a_node.SelectSingleNode("evaluation").Text
     pStatus = a_node.SelectSingleNode("status").Text
     pText = Replace(a_node.SelectSingleNode("backcheckText").Text, "<br />", vbCrLf)
-    If Len(a_node.SelectSingleNode("attachment").Text) > 0 Then pAttach = ChrW(9650)
+    If Len(a_node.SelectSingleNode("attachment").Text) > 0 Then pAttach = ChrW(dxreview.DAIMARU)
     pCreatedBy = StrConv(a_node.SelectSingleNode("createdBy").Text, vbProperCase)
     pCreatedOn = CDate(a_node.SelectSingleNode("createdOn").Text)
 End Sub

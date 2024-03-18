@@ -2,14 +2,66 @@ Attribute VB_Name = "dxreview"
 Public Const mod_name As String = "DxReview"
 Public Const module_author As String = "Ben Fisher"
 Public Const module_email As String = "benstanfish@hotmail.com"
-Public Const module_version As String = "4.0"
-Public Const module_date As String = "2024/01/29"
+Public Const module_version As String = "4.6"
+Public Const module_date As Date = #3/18/2024#
+Public Const module_dependencies = "Microsoft XML, v6.0 (msxml6.dll) - XML parsing functions" & vbCrLf & _
+                                    "Microsoft Scripting Runtime (scrrun.dll) - Dictionaries" & vbCrLf & _
+                                    "Microsoft VBScript Regular Expressions 5.5 (vbscript.dll)" & vbCrLf & _
+                                    "Microsoft Visual Basic for Applications Extensibility 5.3" & vbCrLf & _
+                                    "Microsoft HTML Object Library (MSHTML.tlb)"
 
-' Module requires references to:
-'    Microsoft XML, v6.0 (msxml6.dll) - XML parsing functions
-'    Microsoft Scripting Runtime (scrrun.dll) - Dictionaries
-'    Microsoft VBScripting Regular Expressions 5.5 (vbscript.dll)
-'    Microsoft Visual Basic for Applications Extensibility 5.3
+Public Const PROJECTINFOTARGETCELL As String = "H1"
+Public Const ALLCOMMENTSTARGETCELL  As String = "H11"
+Public Const USERNOTESTARGETCELL  As String = "A11"
+
+Public Const SOLIDTRIANGLEUP As Long = 9650
+Public Const TRIANGLEUP As Long = 9651
+Public Const SOLIDTRIANGLERIGHT As Long = 9658
+Public Const TRIANGLERIGHT As Long = 9655
+Public Const SOLIDTRIANGLEDOWN As Long = 9660
+Public Const TRIANGLEDOWN As Long = 9661
+Public Const SOLIDTRIANGLELEFT As Long = 9664
+Public Const TRIANGLELEFT As Long = 9665
+Public Const DAIMARU As Long = 9898
+Public Const SOLIDDAIMARU As Long = 9899
+
+
+Private Sub UpdateVersionNumber()
+
+    With ThisWorkbook.Sheets("Macros")
+        .Unprotect Password:=""
+        With .Range("I3")
+            .Value = mod_name & " v" & module_version
+            .HorizontalAlignment = xlHAlignRight
+            .Font.Size = 9
+            .Font.Italic = True
+        End With
+        .Protect DrawingObjects:=True, Contents:=True, Scenarios:=True, AllowFiltering:=True, UserInterfaceOnly:=True, Password:=""
+        .EnableSelection = xlUnlockedCells
+        .EnableOutlining = True
+    End With
+
+End Sub
+
+Private Sub UnprotectSheet()
+    ThisWorkbook.Sheets("Macros").Unprotect Password:=""
+End Sub
+
+Public Sub GroupedColumnTriangles(Optional dummy As Long = 0)
+
+    With Range(dxreview.USERNOTESTARGETCELL).Offset(-1, 0)
+        .Value = ChrW(TRIANGLERIGHT)
+        .HorizontalAlignment = xlHAlignRight
+    End With
+    Range(dxreview.ALLCOMMENTSTARGETCELL).Offset(-1, 0).Value = ChrW(TRIANGLELEFT)
+
+    With Range(dxreview.ALLCOMMENTSTARGETCELL).Offset(-1, 4)
+        .Value = ChrW(TRIANGLERIGHT)
+        .HorizontalAlignment = xlHAlignRight
+    End With
+    Range(dxreview.ALLCOMMENTSTARGETCELL).Offset(-1, 10).Value = ChrW(TRIANGLELEFT)
+
+End Sub
 
 
 ' 1. Loading and verifying XML files
@@ -40,7 +92,7 @@ Public Function VerifyRoot(ByVal root As IXMLDOMElement) As Boolean
     End If
 End Function
 
-Public Function GetFilePath() As String
+Public Function GetXMLPath() As String
     ' Returns EMPTY if user cancels, otherwise returns path string
     Dim fd As FileDialog
     Set fd = Application.FileDialog(msoFileDialogFilePicker)
@@ -50,7 +102,7 @@ Public Function GetFilePath() As String
         .Title = "Choose an XML file"
         .AllowMultiSelect = False
         If .Show <> -1 Then Exit Function
-        GetFilePath = .SelectedItems(1)
+        GetXMLPath = .SelectedItems(1)
     End With
 End Function
 
@@ -147,15 +199,28 @@ Public Function BuildFromXML(ByVal file_path As String) As IXMLDOMElement
         ActiveSheet.Cells.Clear
     
         projInfo.CreateFromNode root.SelectSingleNode("DrChecks"), file_path
-        projInfo.PasteData ActiveSheet.Range("E1")
+        projInfo.PasteData ActiveSheet.Range(PROJECTINFOTARGETCELL)
     
         all_comments.CreateFromRootElement root
-        all_comments.PasteData ActiveSheet.Range("E9")
+        all_comments.PasteData ActiveSheet.Range(ALLCOMMENTSTARGETCELL)
     
-        user_notes.PasteData ActiveSheet.Range("A9"), all_comments.Count
+        user_notes.PasteData ActiveSheet.Range(USERNOTESTARGETCELL), all_comments.Count
     
         all_comments.ApplyFormats
         user_notes.ApplyFormats
+
+        Dim aTable As ListObject
+        Set aTable = ActiveSheet.ListObjects.Add(SourceType:=xlSrcRange, _
+            Source:=ActiveSheet.Range(Range(USERNOTESTARGETCELL), _
+                Cells(ActiveSheet.UsedRange.Rows.Count, ActiveSheet.UsedRange.Columns.Count)), _
+            XlListObjectHasHeaders:=xlYes)
+        
+        aTable.Name = IterateTableName("Comments")
+        aTable.TableStyle = ""
+
+        InsertDropdown aTable, "Proposed Status", "Concur, Non-concur, For Information Only, Check and Resolve"
+        InsertDropdown aTable, "State", "Working, Ready, Done, NA"
+        ApplyConditionalFormats aTable, "State", "Working, Ready, Done, NA"
 
         Set BuildFromXML = root
     End If
@@ -169,7 +234,7 @@ Sub ImportFile()
     Dim folder_path As String
     Dim wb As Workbook
     
-    file_path = GetFilePath
+    file_path = GetXMLPath
     If file_path <> Empty Then
         Set root = GetRootFromXML(file_path)
         If VerifyRoot(root) Then
@@ -180,6 +245,7 @@ Sub ImportFile()
             Set root = BuildFromXML(file_path)
             RenameSheet current_sheet, root
             WriteDevInfo wb
+
         End If
     End If
 
@@ -216,21 +282,14 @@ Sub ImportMultipleFiles()
             End If
         Next
         WriteDevInfo wb
+        
     End If
 
     Application.ScreenUpdating = True
     
 End Sub
 
-Function IterateSheetName(baseName As String)
-
-    Dim maxIndex As Long
-    For Each sht In ActiveWorkbook.Sheets
-        If Left(sht.Name, Len(baseName)) = baseName Then maxIndex = maxIndex + 1
-    Next
-    If maxIndex = 0 Then IterateSheetName = "" Else IterateSheetName = maxIndex
-
-End Function
+'NOTE: IterateSheetName() moved below
 
 ' 3. Finishing
 
@@ -254,7 +313,7 @@ Sub WriteDevInfo(target_workbook As Workbook)
     values_array = Array("DX Review", mod_name, module_version, _
                         module_author, module_email, "https://github.com/benstanfish/DX-Review", _
                         "GNU General Public License v3.0", _
-                        "Microsoft XML v6 (msxml.dll), Microsoft Scripting Runtime (scrrun.dll)", , CDate(Now))
+                        module_dependencies, , CDate(Now))
                         
     With target_workbook.Sheets(1)
         .Cells.Delete Shift:=xlUp
@@ -301,12 +360,179 @@ Private Sub ExportModules()
 End Sub
 
 
+'==============================  HELPER METHODS  ===============================
+
+Function ParseToArray(namedConstant As String) As Variant
+    ParseToArray = Split(namedConstant, ", ")
+End Function
+
+Function ParseToLongArray(namedConstant As String) As Variant
+    Dim arr As Variant
+    Dim arr2 As Variant
+    Dim i As Long
+    
+    arr = ParseToArray(namedConstant)
+    ReDim arr2(LBound(arr) To UBound(arr))
+    For i = LBound(arr) To UBound(arr)
+        arr2(i) = CLng(arr(i))
+    Next
+
+    ParseToLongArray = arr2
+End Function
+
+'===================  VALIDATION AND CONDITIONAL FORMATTING  ===================
+
+Sub InsertDropdown(aTable As ListObject, _
+                    Optional targetColumn As String = "State", _
+                    Optional selectionSet As String = "Ongoing, Ready, Done", _
+                    Optional suppressError As Boolean = False)
+    'NOTE: This method inserts a validation list with values parsed from the selectionSet, into
+    ' the cells of the targetColumn as dropdown lists. USE: combine with conditional formatting.
+    ' selectionSet must be a single string with options seperated by a comma and space.
+            
+    ' Test for empty table
+    Dim temporaryRow As Boolean
+    If aTable.DataBodyRange Is Nothing Then
+        aTable.ListRows.Add
+        temporaryRow = True
+    End If
+    
+    With aTable.ListColumns(targetColumn).DataBodyRange.Validation
+        .Delete
+        .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
+            xlBetween, Formula1:=selectionSet
+        .IgnoreBlank = True
+        .InCellDropdown = True
+        .InputTitle = ""
+        .ErrorTitle = "Disallowed Input"
+        .InputMessage = ""
+        .ErrorMessage = "Please select from the options: " & selectionSet
+        .ShowInput = True
+        .ShowError = suppressError
+    End With
+    
+    ' Remove dummy row needed for adding to empty table
+    If temporaryRow Then aTable.ListRows.Item(1).Delete
+ 
+End Sub
+
+Sub ApplyConditionalFormats(aTable As ListObject, _
+                        Optional targetColumn As String = "State", _
+                        Optional selectionSet As String = "Ongoing, Ready, Done", _
+                        Optional hasSecondaryFormats As Boolean = True)
+    'NOTE: This method inserts conditional formatting based on the validation "dropdown" list
+    ' values in the targetColumn. Values must match those in selectionSet (not case sensitive).
+    ' hasSecondaryFormats highlights the whole row with accent scheme, while the main
+    ' condition only highlights the targetColumn values. The user must manually update
+    ' preferences here in this method.
+    
+    
+    ' Test for empty table
+    Dim temporaryRow As Boolean
+    If aTable.DataBodyRange Is Nothing Then
+        aTable.ListRows.Add
+        temporaryRow = True
+    End If
+    
+    Dim choices As Variant
+    Dim i As Long
+
+    choices = ParseToArray(selectionSet)
+    For i = LBound(choices) To UBound(choices)
+        choices(i) = """" & choices(i) & """"
+    Next
+
+    Dim statusColumn As Range
+    Set statusColumn = aTable.ListColumns(targetColumn).DataBodyRange
 
 
+    Dim firstCell As String
+    firstCell = "$" & Replace(statusColumn(1).Address, "$", "")
+
+    '---------------  MAIN CONDITIONS  ----------------
+    statusColumn.FormatConditions.Delete
+
+    For i = LBound(choices) To UBound(choices)
+        statusColumn.FormatConditions.Add Type:=xlExpression, _
+            Formula1:="=IF(LOWER(" & firstCell & ")=" & choices(i) & ",TRUE,FALSE)"
+    Next
+
+    With statusColumn.FormatConditions(1)
+        .Interior.Color = webcolors.DANGER
+        .Font.Color = ContrastText(.Interior.Color, webcolors.DANGER_DARKER, webcolors.DANGER)
+        .Font.Bold = True
+    End With
+
+    With statusColumn.FormatConditions(2)
+        .Interior.Color = webcolors.WARNING
+        .Font.Color = ContrastText(.Interior.Color, webcolors.WARNING_DARKER, webcolors.WARNING)
+        .Font.Bold = True
+    End With
+
+    With statusColumn.FormatConditions(3)
+        .Interior.Color = webcolors.SUCCESS
+        .Font.Color = ContrastText(.Interior.Color, webcolors.SUCCESS_DARKER, webcolors.SUCCESS)
+        .Font.Bold = True
+    End With
+    
+    With statusColumn.FormatConditions(4)
+        .Interior.Color = webcolors.SECONDARY_LIGHT
+        .Font.Color = ContrastText(.Interior.Color, webcolors.SECONDARY_DARKER, webcolors.SECONDARY)
+        .Font.Bold = True
+    End With
+
+    ' Remove dummy row needed for adding to empty table
+    If temporaryRow Then aTable.ListRows.Item(1).Delete
+
+End Sub
 
 
+'============================  GENERATIVE METHODS  =============================
 
+Function IterateTableName(baseName As String)
 
+    Dim maxIndex As Long
+    Dim aTable As ListObject
+    For Each sht In ActiveWorkbook.Sheets
+        For Each aTable In sht.ListObjects
+            If Left(aTable.Name, Len(baseName)) = baseName Then maxIndex = maxIndex + 1
+        Next
+    Next
+    If maxIndex = 0 Then IterateTableName = baseName & "" Else IterateTableName = baseName & maxIndex
+
+End Function
+
+Function IterateSheetName(baseName As String)
+
+    Dim maxIndex As Long
+    For Each sht In ActiveWorkbook.Sheets
+        If Left(sht.Name, Len(baseName)) = baseName Then maxIndex = maxIndex + 1
+    Next
+    If maxIndex = 0 Then IterateSheetName = "" Else IterateSheetName = maxIndex
+
+End Function
+
+Sub CopyWorksheetChangeCode(sht As Worksheet)
+    'Requires reference to 'Microsoft Visual Basic for Applications Extensibility 5.3"
+    'and you must check YES to "Trust Access to VBA Object Model" in Macro Security Settings
+    
+    Dim VBAEditor As VBIDE.VBE
+    Dim VBProj As VBIDE.VBProject
+    Dim VBComp As VBIDE.VBComponent
+    Dim VBComp2 As VBIDE.VBComponent
+
+    Set VBAEditor = Application.VBE
+    Set VBProj = VBAEditor.ActiveVBProject
+    Set VBComp = VBProj.VBComponents("Sheet2")  ' This should be the initial "POAM Log" sheet
+                                                ' even if renamed or shifted by the user.
+    Set VBComp2 = VBProj.VBComponents(sht.CodeName)
+    
+    codeString = VBComp.CodeModule.Lines(1, VBComp.CodeModule.CountOfLines)
+    
+    VBComp2.CodeModule.DeleteLines 1, VBComp2.CodeModule.CountOfLines
+    VBComp2.CodeModule.InsertLines 1, codeString
+        
+End Sub
 
 
 
