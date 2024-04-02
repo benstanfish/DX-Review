@@ -87,7 +87,7 @@ Public Function Find_ReportSectionNumbers(ParamArray search_cells()) As String
     
     
     ' Load up an array of regex search patterns and assign to variable
-    patterns = Array("(\w)?(\d{1,4}-)?\d+([\.]{1}\d+)+")
+    patterns = Array("((Section|section|Sec|sec)\.?\s?)?(\w)?(\d{1,4}-)?\d+([\.-]{1}\d+)+")
     
     ' Combine the text from all user provided search cells into a single string
     For Each thing In search_cells
@@ -124,7 +124,7 @@ Public Function Find_StandardReferences(ParamArray search_cells()) As String
                      "UFC\s?\d{1,2}-\d{3}-\d{1,3}", _
                      "\bFC\s?\d{1,2}-\d{3}-\d{1,3}[A-Z]{1,2}", _
                      "MIL-STD-\d{1,4}[A-Z]{0,2}", _
-                     "(\d{4}\s)?(ACI|AISC|ASCE|ASTM|TMS|CMAA|AREMA|NFPA|ISO|IBC|IFC|IPC|ANSI|ASME|AISI|IEEE|NAVSEA|JARPA|NHPA|ARPA|ASHRAE|EPA)(\s\d{1,5}(-\d{1,3})?)?(\sand\s\d{1,4})?", _
+                     "(\d{4}\s)?(ACI|AISC|ASCE|ASTM|TMS|CMAA|AREMA|NFPA|FEMA|ISO|IBC|IFC|IPC|ANSI|ASME|AISI|IEEE|NAVSEA|JARPA|NHPA|ARPA|ASHRAE|EPA)(\s\d{1,5}(-\d{1,3})?)?(\sand\s\d{1,4})?", _
                      "(JIS|JSA|JASS|WJES|JES|AIJ|MLIT|JSCA|JSCE)", _
                      "\d{1,3}\sCFR\s(Part|PART|part)?\s\d{1,5}")
     

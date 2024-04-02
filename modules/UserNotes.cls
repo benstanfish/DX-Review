@@ -13,7 +13,7 @@ Dim pBodyRange As Range
 Dim pHeaderFields As Variant
 
 Private Sub Class_Initialize()
-    pHeaderFields = Array("No.", "Notes", "Action Items", "Assignee", "Reponse", "Proposed Status", "State")
+    pHeaderFields = Array("No.", "Notes", "Action Items", "Assignee", "Response", "Proposed Status", "State")
 End Sub
 
 Sub PasteData(target_cell As Range, comment_count As Long)

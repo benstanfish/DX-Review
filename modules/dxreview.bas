@@ -2,8 +2,8 @@ Attribute VB_Name = "dxreview"
 Public Const mod_name As String = "DxReview"
 Public Const module_author As String = "Ben Fisher"
 Public Const module_email As String = "benstanfish@hotmail.com"
-Public Const module_version As String = "4.6.3"
-Public Const module_date As Date = #3/18/2024#
+Public Const module_version As String = "4.6.5"
+Public Const module_date As Date = #4/2/2024#
 Public Const module_dependencies = "Microsoft XML, v6.0 (msxml6.dll) - XML parsing functions" & vbCrLf & _
                                     "Microsoft Scripting Runtime (scrrun.dll) - Dictionaries" & vbCrLf & _
                                     "Microsoft VBScript Regular Expressions 5.5 (vbscript.dll)" & vbCrLf & _
@@ -212,7 +212,7 @@ Public Function BuildFromXML(ByVal file_path As String) As IXMLDOMElement
         Dim aTable As ListObject
         Set aTable = ActiveSheet.ListObjects.Add(SourceType:=xlSrcRange, _
             Source:=ActiveSheet.Range(Range(USERNOTESTARGETCELL), _
-                Cells(ActiveSheet.UsedRange.Rows.Count, ActiveSheet.UsedRange.Columns.Count)), _
+                Cells(ActiveSheet.UsedRange.Rows.Count, ActiveSheet.UsedRange.Columns.Count - 1)), _
             XlListObjectHasHeaders:=xlYes)
         
         aTable.Name = IterateTableName("Comments")
@@ -221,6 +221,15 @@ Public Function BuildFromXML(ByVal file_path As String) As IXMLDOMElement
         InsertDropdown aTable, "Proposed Status", "Concur, Non-concur, For Information Only, Check and Resolve"
         InsertDropdown aTable, "State", "Working, Ready, Done, NA"
         ApplyConditionalFormats aTable, "State", "Working, Ready, Done, NA"
+
+        Dim refRng As Range
+        With ActiveSheet.ListObjects(1)
+            Set refRng = Union(.ListColumns("Source").Range, .ListColumns("Reference").Range, .ListColumns("Sheet").Range, .ListColumns("Spec").Range, .ListColumns("Section").Range)
+        End With
+        With refRng
+            .Interior.Color = webcolors.LEMONCHIFFON
+            .Font.Color = webcolors.SADDLEBROWN
+        End With
 
         Set BuildFromXML = root
     End If

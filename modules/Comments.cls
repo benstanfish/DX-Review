@@ -549,7 +549,7 @@ Function ApplyFormats()
     Set refRng = Union(pCommentsHeader(6), pCommentsHeader(7), pCommentsHeader(8), pCommentsHeader(9), pCommentsHeader(10))
     With refRng.EntireColumn
         .Group
-        .Font.Size = 8
+        .Font.Size = 9
         .WrapText = True
     End With
     

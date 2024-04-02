@@ -41,9 +41,28 @@ Public Sub UpdateStatSheet()
 End Sub
 
 
+Private Sub NewStatsForCurrent()
+
+    Dim srcSht As Worksheet
+    Set srcSht = ActiveSheet
+    
+    Dim statShtName As String
+    statShtName = "STAT-" & Left(srcSht.Name, Len(srcSht.Name) - 5)
+    Application.DisplayAlerts = False
+    ActiveWorkbook.Sheets(statShtName).Delete
+    Application.DisplayAlerts = True
+    Dim sht As Worksheet
+    Set sht = ActiveWorkbook.Sheets.Add(After:=srcSht)
+    sht.Name = "STAT-" & Left(srcSht.Name, Len(srcSht.Name) - 5)
+    ActiveWindow.DisplayGridlines = False
+    PrintStatisticsSheet srcSht, sht
+    
+End Sub
+
 Public Sub PrintStatisticsSheet(ByVal srcSht As Worksheet, ByVal sht As Worksheet)
    
-
+   On Error GoTo dump
+   
     Dim aTable As ListObject
     Set aTable = srcSht.ListObjects(1)
     
@@ -290,6 +309,8 @@ Public Sub PrintStatisticsSheet(ByVal srcSht As Worksheet, ByVal sht As Workshee
         
     End If
     
+    On Error GoTo 0
+dump:
 End Sub
 
 Public Function PeopleAreAssigned(aTable As ListObject) As Boolean
