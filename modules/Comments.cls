@@ -444,6 +444,50 @@ Public Sub ApplyConditionalFormats(ByVal data_range As Range)
 
 End Sub
 
+Public Sub FormatHighest(ByVal data_range As Range)
+
+    Dim cnt As Long
+    cnt = data_range.FormatConditions.Count
+    For i = cnt To 2 Step -1
+        data_range.FormatConditions(i).Delete
+    Next
+
+    first_cell = Replace(data_range(1).Address, "$", "")
+    first_status_cell = Replace(data_range(2).Address, "$", "")
+
+    data_range.Font.Bold = True
+
+    data_range.FormatConditions.Add Type:=xlExpression, Formula1:="=LOWER(" & first_cell & ")=""check and resolve"""
+    With data_range.FormatConditions(2)
+        .Interior.Color = webcolors.ORANGERED
+        .Font.Color = webcolors.ContrastText(.Interior.Color)
+    End With
+
+    data_range.FormatConditions.Add Type:=xlExpression, Formula1:="=LOWER(" & first_cell & ")=""non-concur"""
+    With data_range.FormatConditions(3)
+        .Interior.Color = GOLD
+        .Font.Color = webcolors.ContrastText(.Interior.Color)
+    End With
+
+    data_range.FormatConditions.Add Type:=xlExpression, Formula1:="=LOWER(" & first_cell & ")=""for information only"""
+    With data_range.FormatConditions(4)
+        '.Interior.Color = 3506772
+        .Interior.Color = webcolors.MEDIUMSEAGREEN
+        .Font.Color = webcolors.ContrastText(.Interior.Color)
+    End With
+
+    data_range.FormatConditions.Add Type:=xlExpression, Formula1:="=LOWER(" & first_cell & ")=""concur"""
+    With data_range.FormatConditions(5)
+        '.Interior.Color = 12611584
+        .Interior.Color = webcolors.DODGERBLUE
+        .Font.Color = webcolors.ContrastText(.Interior.Color)
+    End With
+
+End Sub
+
+
+
+
 Function ApplyFormats()
     ' Reboot Sheet Styles
     Application.ScreenUpdating = False
@@ -499,6 +543,8 @@ Function ApplyFormats()
             If a_cell = Empty Then ApplyXLines a_cell
         Next
     End With
+    Set pHighestResponseBody = pCommentsBody.Columns(15)
+    Debug.Print pHighestResponseBody.Address
     
     With pFullBody
         .HorizontalAlignment = xlHAlignLeft
@@ -511,7 +557,10 @@ Function ApplyFormats()
         End With
     End With
 
-    ApplyConditionalFormats pFullBody
+    Me.ApplyConditionalFormats pFullBody
+    
+    
+    
     
     If Me.HasEvaluations Then
         For i = 0 To pAllResponseHeader.Columns.Count - 1
@@ -557,11 +606,14 @@ Function ApplyFormats()
     
     ActiveSheet.Range(ALLCOMMENTSTARGETCELL).EntireRow.Font.Size = 9
     
+    Me.FormatHighest pCommentsBody.Columns(15)
+    
     'pFullHeader.AutoFilter
     
     ' Collapse all "outline" groups
     ActiveSheet.Outline.ShowLevels ColumnLevels:=1
     Application.ScreenUpdating = True
 End Function
+
 
 

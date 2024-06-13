@@ -13,7 +13,8 @@ Dim pBodyRange As Range
 Dim pHeaderFields As Variant
 
 Private Sub Class_Initialize()
-    pHeaderFields = Array("No.", "Notes", "Action Items", "Assignee", "Response", "Proposed Status", "State")
+    pHeaderFields = Array("No.", "Notes", "Action Items", "Assignee", _
+                          "Proposed Response", "Proposed Status", "State")
 End Sub
 
 Sub PasteData(target_cell As Range, comment_count As Long)
@@ -62,7 +63,7 @@ Sub ApplyFormats()
             .Weight = xlThin
             .Color = KHAKI
         End With
-        
+        .Font.Size = 8
         .HorizontalAlignment = xlHAlignLeft
         .VerticalAlignment = xlVAlignTop
     End With
@@ -70,7 +71,7 @@ Sub ApplyFormats()
     pHeaderRange(1).ColumnWidth = 5
     For i = 2 To 5
         With pHeaderRange(i)
-            .ColumnWidth = 30
+            .ColumnWidth = 20
             .WrapText = True
         End With
     Next

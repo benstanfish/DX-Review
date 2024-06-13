@@ -2,8 +2,8 @@ Attribute VB_Name = "dxreview"
 Public Const mod_name As String = "DxReview"
 Public Const module_author As String = "Ben Fisher"
 Public Const module_email As String = "benstanfish@hotmail.com"
-Public Const module_version As String = "4.6.5"
-Public Const module_date As Date = #4/2/2024#
+Public Const module_version As String = "4.7.0"
+Public Const module_date As Date = #6/13/2024#
 Public Const module_dependencies = "Microsoft XML, v6.0 (msxml6.dll) - XML parsing functions" & vbCrLf & _
                                     "Microsoft Scripting Runtime (scrrun.dll) - Dictionaries" & vbCrLf & _
                                     "Microsoft VBScript Regular Expressions 5.5 (vbscript.dll)" & vbCrLf & _
