@@ -455,8 +455,6 @@ Public Sub FormatHighest(ByVal data_range As Range)
     first_cell = Replace(data_range(1).Address, "$", "")
     first_status_cell = Replace(data_range(2).Address, "$", "")
 
-    data_range.Font.Bold = True
-
     data_range.FormatConditions.Add Type:=xlExpression, Formula1:="=LOWER(" & first_cell & ")=""check and resolve"""
     With data_range.FormatConditions(2)
         .Interior.Color = webcolors.ORANGERED
